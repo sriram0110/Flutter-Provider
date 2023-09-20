@@ -13,15 +13,17 @@ class ContactsListScreen extends StatefulWidget {
 }
 
 class _ContactsListScreenState extends State<ContactsListScreen> {
-
   @override
   void initState() {
     super.initState();
-    context.read<ContactProvider>().loadContacts();
+    Provider.of<ContactProvider>(context).loadContacts();
   }
+
   @override
   Widget build(BuildContext context) {
-    final contacts = context.watch<ContactProvider>().contacts;
+    // final contactProvider = Provider.of<ContactProvider>(context);
+    final providerContact =
+        Provider.of<ContactProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -38,84 +40,93 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
           color: Theme.of(context).colorScheme.onPrimary,
         ),
         actions: [
-          IconButton(onPressed: () {
-            
-          }, icon: Icon(Icons.star, color: Theme.of(context).colorScheme.onPrimary ,))
+          IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.star,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ))
         ],
       ),
-      body: ListView.builder(
-        itemCount: contacts.length,
-        itemBuilder: (context, index) {
-          Contact contact = contacts[index];
-          return Dismissible(
-            key: Key(contact.name),
-            direction: DismissDirection.startToEnd,
-            onDismissed: (direction) {
-              if (direction == DismissDirection.startToEnd) {
-                print('Calling...');
-              }
-            },
-            background: Container(
-              alignment: Alignment.centerLeft,
-              color: const Color.fromARGB(255, 95, 124, 62),
-              child: const Padding(
-                padding: EdgeInsets.only(right: 10.0),
-                child: Icon(
-                  Icons.call,
-                  color: Colors.white,
-                  size: 40.0,
+      body: Consumer<ContactProvider>(
+        builder: (context, value, child) => ListView.builder(
+          itemCount: value.contacts.length,
+          itemBuilder: (context, index) {
+            Contact contact = value.contacts[index];
+            return Dismissible(
+              key: Key(contact.name),
+              direction: DismissDirection.startToEnd,
+              onDismissed: (direction) {
+                if (direction == DismissDirection.startToEnd) {
+                  print('Calling...');
+                }
+              },
+              confirmDismiss: (direction) async {
+                if (direction == DismissDirection.startToEnd) {
+                  return false;
+                }
+              },
+              background: Container(
+                alignment: Alignment.centerLeft,
+                color: const Color.fromARGB(255, 95, 124, 62),
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 10.0),
+                  child: Icon(
+                    Icons.call,
+                    color: Colors.white,
+                    size: 40.0,
+                  ),
                 ),
               ),
-            ),
-            child: ListTile(
-              title: Text(contact.name),
-              subtitle: Text(contact.phoneNumber),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      context.read<ContactProvider>().toggleFavorite(index);
+              child: ListTile(
+                title: Text(contact.name),
+                subtitle: Text(contact.phoneNumber),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        // context.read<ContactProvider>().toggleFavorite(index);
+                        providerContact.toggleFavorite(index);
+                      },
+                      icon: Icon(contact.isFavoriteContact
+                          ? Icons.star
+                          : Icons.star_border),
+                      color: const Color.fromARGB(255, 144, 36, 36),
+                    ),
+                  ],
+                ),
+                onLongPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Delete Contact'),
+                        content: Text(
+                            'Are you sure you want to delete ${contact.name} contact?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              providerContact.deleteContact(index);
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Delete'),
+                          ),
+                        ],
+                      );
                     },
-                    icon: Icon(contact.isFavoriteContact
-                        ? Icons.star
-                        : Icons.star_border),
-                    color: const Color.fromARGB(255, 144, 36, 36),
-                  ),
-                ],
+                  );
+                },
               ),
-              onLongPress: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Delete Contact'),
-                      content: Text(
-                          'Are you sure you want to delete ${contact.name} contact?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            context
-                                .read<ContactProvider>()
-                                .deleteContact(index);
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Delete'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

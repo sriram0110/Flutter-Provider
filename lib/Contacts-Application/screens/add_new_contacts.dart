@@ -12,6 +12,7 @@ class AddNewContactsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final saveContact = Provider.of<ContactProvider>(context, listen: false);
     return  Scaffold(
       appBar: AppBar(
         
@@ -32,22 +33,24 @@ class AddNewContactsScreen extends StatelessWidget {
               decoration: const InputDecoration(labelText: 'Phone Number'),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                String name = nameController.text;
-                String phoneNumber = phoneController.text;
-                if (name.isNotEmpty && phoneNumber.isNotEmpty) {
-                  context.read<ContactProvider>().addContact(
-                        Contact(
-                          name: name,
-                          phoneNumber: phoneNumber,
-                          isFavoriteContact: false,
-                        ),
-                      );
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Save Contact', style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).colorScheme.primary),), 
+            Consumer(
+              builder: (context, value, child) => ElevatedButton(
+                onPressed: () {
+                  String name = nameController.text;
+                  String phoneNumber = phoneController.text;
+                  if (name.isNotEmpty && phoneNumber.isNotEmpty) {
+                    saveContact.addContact(
+                          Contact(
+                            name: name,
+                            phoneNumber: phoneNumber,
+                            isFavoriteContact: false,
+                          ),
+                        );
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text('Save Contact', style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).colorScheme.primary),), 
+              ),
             ),
           ],
         ),
