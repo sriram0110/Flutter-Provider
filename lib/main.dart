@@ -4,7 +4,8 @@ import 'package:provider_state_management/models/counter.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(   //provides an instance of Counter to the widget tree
+    ChangeNotifierProvider(
+      //provides an instance of Counter to the widget tree
       create: (context) => Counter(), //creating a way that a data can be passed
       child: const MyApp(),
     ),
@@ -21,7 +22,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
@@ -49,28 +49,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
-
   @override
   Widget build(BuildContext context) {
-
-      final counterState = Provider.of<Counter>(context);
-      
-
     return Scaffold(
-        appBar: AppBar(
-          
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        
-          title: Text(widget.title),
-        ),
-        body: Consumer<Counter>(
-      builder: (context, value, child) => 
-        Center(
-        
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Consumer<Counter>(
+        builder: (context, value, child) => Center(
           child: Column(
-        
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const Text(
@@ -86,13 +74,15 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            counterState.increment();
-          },
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        ), 
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          final counterState = context.read<Counter>();
+
+          counterState.increment();
+        },
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

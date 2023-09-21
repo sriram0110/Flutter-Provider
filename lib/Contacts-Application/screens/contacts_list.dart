@@ -16,7 +16,9 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ContactProvider>(context).loadContacts();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+       Provider.of<ContactProvider>(context, listen: false).loadContacts();
+    });
   }
 
   @override
